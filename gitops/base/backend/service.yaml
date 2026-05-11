@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ford-backend
+  labels:
+    app: ford-backend
+    component: api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: ford-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ford-backend-active
+  labels:
+    app: ford-backend
+    component: api
+    service-type: active
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: ford-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ford-backend-preview
+  labels:
+    app: ford-backend
+    component: api
+    service-type: preview
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: ford-backend

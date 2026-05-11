@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ford-shop-dev
+
+resources:
+  - ../../base
+
+images:
+  - name: ford-backend
+    newName: ghcr.io/irfadkp/ford-bluegreen-app/backend
+    newTag: "1.0.0"
+  - name: ford-frontend
+    newName: ghcr.io/irfadkp/ford-bluegreen-app/frontend
+    newTag: "1.0.0"
+
+patches:
+  - target:
+      kind: Ingress
+      name: ford-ingress
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: ford-shop.local

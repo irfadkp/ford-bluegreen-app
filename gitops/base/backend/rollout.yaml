@@ -1,0 +1,86 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: ford-backend
+  labels:
+    app: ford-backend
+    component: api
+spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: ford-backend
+  template:
+    metadata:
+      labels:
+        app: ford-backend
+        component: api
+    spec:
+      containers:
+      - name: backend
+        image: ford-backend:1.0.0
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: DATABASE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: database.host
+        - name: DATABASE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: database.port
+        - name: DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: database.name
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: database.user
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: database.password
+        - name: INSTANA_AGENT_HOST
+          value: "instana-agent.instana-agent"
+        - name: INSTANA_AGENT_PORT
+          value: "42699"
+        - name: INSTANA_SERVICE_NAME
+          value: "ford-backend"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+  strategy:
+    blueGreen:
+      activeService: ford-backend-active
+      previewService: ford-backend-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30
+      scaleDownDelayRevisionLimit: 1
+      previewReplicaCount: 1
