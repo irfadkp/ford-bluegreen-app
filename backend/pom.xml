@@ -58,12 +58,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Instana Java Agent -->
-        <dependency>
-            <groupId>com.instana</groupId>
-            <artifactId>instana-agent-spring-boot-starter</artifactId>
-            <version>1.1.0</version>
-        </dependency>
 
         <!-- Logback for structured logging -->
         <dependency>
