@@ -15,6 +15,7 @@ spec:
     metadata:
       labels:
         app: ford-backend
+        app.kubernetes.io/part-of: ford-bluegreen
         component: api
     spec:
       containers:
