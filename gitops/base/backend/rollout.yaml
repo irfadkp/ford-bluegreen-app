@@ -55,8 +55,6 @@ spec:
           value: "instana-agent.instana-agent"
         - name: INSTANA_AGENT_PORT
           value: "42699"
-        - name: INSTANA_SERVICE_NAME
-          value: "ford-backend"
         resources:
           requests:
             memory: "512Mi"
