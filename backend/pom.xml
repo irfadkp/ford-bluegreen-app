@@ -63,8 +63,11 @@
         <dependency>
             <groupId>com.instana</groupId>
             <artifactId>instana-java-sdk</artifactId>
-            <version>1.1.28</version>
+            <version>1.2.0</version>
         </dependency>
+
+        <!-- Instana APM - Using Java agent instead of Maven dependency -->
+        <!-- The Instana agent is injected at runtime via -javaagent -->
 
         <!-- Logback for structured logging -->
         <dependency>
