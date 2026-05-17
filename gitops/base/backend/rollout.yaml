@@ -55,6 +55,12 @@ spec:
           value: "instana-agent.instana-agent"
         - name: INSTANA_AGENT_PORT
           value: "42699"
+        - name: INSTANA_SERVICE_NAME
+          value: "ford-backend"
+        - name: INSTANA_ZONE
+          value: "ford-bluegreen"
+        - name: INSTANA_TAGS
+          value: "app=ford,deployment=bluegreen,component=backend"
         resources:
           requests:
             memory: "512Mi"
