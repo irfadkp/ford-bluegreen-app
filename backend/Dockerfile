@@ -16,13 +16,7 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Install wget for downloading Instana agent
-RUN apk add --no-cache wget
-
-# Download Instana Java agent
-RUN wget -O /opt/instana-agent.jar https://github.com/instana/instana-agent-java/releases/download/v1.2.0/instana-agent-1.2.0.jar
-
-# Copy the built jar from build stage
+# Copy the built jar from build stage (includes Instana SDK)
 COPY --from=build /app/target/*.jar app.jar
 
 # Expose port
@@ -32,12 +26,12 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health/live || exit 1
 
-# Run application with Instana Java agent
+# Run application (Instana SDK provides tracing via dependency)
 ENTRYPOINT ["java", \
-  "-javaagent:/opt/instana-agent.jar", \
   "-Xms256m", \
   "-Xmx512m", \
   "-XX:+UseG1GC", \
   "-XX:MaxGCPauseMillis=200", \
+  "-Dinstana.service.name=${INSTANA_SERVICE_NAME:-ford-backend}", \
   "-jar", \
   "app.jar"]
