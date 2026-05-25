@@ -1,93 +1,134 @@
-# Ford Blue/Green Deployment Demo
+# Ford Blue/Green App
 
-A demonstration application showcasing Blue/Green deployment strategy with intentional errors and heavy logging for monitoring purposes.
+E-commerce application demonstrating **Blue/Green Deployment** strategy with **Instana APM** monitoring.
 
-## Architecture
-
-- **Backend**: Java Spring Boot application with REST API
-- **Frontend**: React application with modern UI
-- **Database**: PostgreSQL
-- **Deployment**: Blue/Green strategy using Argo Rollouts
-- **Monitoring**: Instana APM integration
-
-## Features
-
-- ✅ Intentional error generation (20-40% failure rate)
-- ✅ Heavy logging for monitoring
-- ✅ External API calls for network traffic
-- ✅ Background scheduled tasks
-- ✅ Blue/Green deployment with manual promotion
-- ✅ Health checks and probes
-- ✅ Instana monitoring integration
-
-## Vehicle Models
-
-- F-150 (Truck)
-- Mustang (Sports)
-- Explorer (SUV)
-- Bronco (SUV)
-- Ranger (Truck)
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
-
 - Kubernetes cluster
 - ArgoCD installed
-- Argo Rollouts installed
-- GitHub account for CI/CD
+- Instana account (Agent Key and EUM Key)
 
-### Deployment
+### Installation
 
-1. **Create namespace**:
 ```bash
-kubectl create namespace ford-shop-dev
+# Clone the repository
+git clone https://github.com/irfadkp/ford-bluegreen-app.git
+cd ford-bluegreen-app
+
+# Set Instana credentials as environment variables
+export INSTANA_AGENT_KEY="your-agent-key"
+export INSTANA_EUM_KEY="your-eum-key"
+
+# Run the installer
+chmod +x install.sh
+./install.sh
 ```
 
-2. **Deploy with ArgoCD**:
-```bash
-kubectl apply -f gitops/argocd/application.yaml
-```
+For detailed installation instructions, see [INSTALL.md](INSTALL.md).
 
-3. **Access the application**:
-- Frontend: http://ford-shop.local
-- Backend API: http://ford-shop.local/api
+## 📋 Architecture
+
+### Components
+- **Backend** (Node.js): REST API with Instana Node.js agent
+- **Frontend** (React + Vite): SPA with Instana EUM
+- **PostgreSQL**: Database
+
+### Deployment Strategy
+**Blue/Green Deployment**: Zero-downtime deployments with instant traffic switch
+- **Blue Environment**: Current production version
+- **Green Environment**: New version being deployed and tested
+- **Traffic Switch**: Instant cutover from blue to green after validation
+- **Rollback**: Quick rollback to blue if issues detected
+
+## 🔐 Security - Instana Keys
+
+**IMPORTANT**: Instana keys are **NEVER** committed to Git.
+
+- Keys are stored as **Kubernetes Secrets**
+- `.env` file is in `.gitignore`
+- Use environment variables or secret management tools
+- Secrets are created by `install.sh` script
+
+### Secrets Created
+- `backend-ford-instana-secret`
+- `frontend-ford-instana-secret`
+
+## 📊 Monitoring with Instana
+
+### Backend Monitoring
+- Node.js agent automatically instruments the application
+- Traces HTTP requests, database queries, and external calls
+- Custom spans using Instana SDK
+
+### Frontend Monitoring
+- End User Monitoring (EUM) tracks:
+  - Page load times
+  - User interactions
+  - JavaScript errors
+  - AJAX calls
+
+## 🛠️ Development
 
 ### Local Development
-
-**Backend**:
 ```bash
+# Backend
 cd backend
-mvn spring-boot:run
-```
+npm install
+npm run dev
 
-**Frontend**:
-```bash
+# Frontend
 cd frontend
 npm install
-npm start
+npm run dev
 ```
 
-## CI/CD Pipeline
+### Building Images
+Images are automatically built and pushed by GitHub Actions on push to `master` branch.
 
-GitHub Actions automatically builds and pushes Docker images to GHCR on push to main/master branch.
+## 📦 CI/CD Pipeline
 
-## Monitoring
+GitHub Actions workflow:
+1. Detects changes in backend or frontend
+2. Builds Docker images
+3. Pushes to GitHub Container Registry (GHCR)
+4. Updates image tags in GitOps manifests
+5. ArgoCD automatically syncs changes
 
-The application generates:
-- Heavy application logs
-- Intentional errors (20-40% rate)
-- External API calls
-- Background task logs
-- Performance metrics
+## 🔄 GitOps Structure
 
-## Blue/Green Deployment
+```
+gitops/
+├── argocd/
+│   └── application.yaml    # ArgoCD Application definition
+├── base/                   # Base Kubernetes manifests
+└── overlays/
+    └── dev/               # Dev environment overlays
+```
 
-The backend uses Argo Rollouts with Blue/Green strategy:
-- Preview environment for testing
-- Manual promotion to production
-- Automatic rollback on failure
+## 📖 Documentation
 
-## License
+- [Installation Guide](INSTALL.md)
+- [Architecture Details](ARCHITECTURE.md)
+- [Implementation Guide](IMPLEMENTATION_GUIDE.md)
+- [Quick Start](QUICKSTART.md)
 
-MIT
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test locally
+5. Submit a pull request
+
+## 📝 License
+
+MIT License
+
+## 🆘 Support
+
+For issues:
+- Check [INSTALL.md](INSTALL.md) troubleshooting section
+- Review ArgoCD application logs
+- Verify Instana agent is running
+- Check GitHub Actions workflow logs
