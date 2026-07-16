@@ -7,6 +7,9 @@ spec:
     - name: pod-template-hash  # injected automatically from previewReplicaSet hash
   metrics:
     - name: error-rate
+      # Wait 90s after preview pod is ready before first measurement.
+      # Instana needs time to discover the new pod and collect initial metrics.
+      initialDelay: 90s
       interval: 1m
       count: 3
       # errors is a ratio (0..1) in Instana, not a percentage
@@ -36,6 +39,8 @@ spec:
                 value: "{{args.pod-template-hash}}"
 
     - name: latency-p90
+      # Wait 90s after preview pod is ready before first measurement.
+      initialDelay: 90s
       interval: 1m
       count: 3
       # Allow up to 10000ms (10s) P90 for spring boot warm-up
