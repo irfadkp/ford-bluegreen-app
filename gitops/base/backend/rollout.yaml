@@ -90,3 +90,10 @@ spec:
       scaleDownDelaySeconds: 30
       scaleDownDelayRevisionLimit: 1
       previewReplicaCount: 1
+      prePromotionAnalysis:
+        templates:
+          - templateName: instana-bluegreen-analysis
+        args:
+          - name: pod-template-hash
+            valueFrom:
+              podTemplateHashValue: Latest  # targets the green (preview) ReplicaSet

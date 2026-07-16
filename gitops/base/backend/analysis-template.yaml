@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: instana-bluegreen-analysis
+spec:
+  args:
+    - name: pod-template-hash  # injected automatically from previewReplicaSet hash
+  metrics:
+    - name: error-rate
+      interval: 1m
+      count: 3
+      # errors is a ratio (0..1) in Instana, not a percentage
+      successCondition: result <= 0.05
+      failureLimit: 1
+      provider:
+        plugin:
+          instana/metrics:
+            host: https://ibmdevsandbox-instanaibm.instana.io
+            apiTokenEnv: INSTANA_API_TOKEN
+            metric: errors
+            aggregation: MEAN
+            granularity: 60
+            timeWindowMs: 300000
+            # Scope to cluster + namespace to avoid hash collisions across apps
+            clusterName: in-cluster
+            namespace: ford-shop-dev
+            groupByTag: kubernetes.pod.label
+            groupByTagKey: rollouts-pod-template-hash
+            groupByTagEntity: DESTINATION
+            selectGroup: "{{args.pod-template-hash}}"
+            tagFilters:
+              - name: kubernetes.pod.label
+                key: rollouts-pod-template-hash
+                operator: EQUALS
+                entity: DESTINATION
+                value: "{{args.pod-template-hash}}"
+
+    - name: latency-p90
+      interval: 1m
+      count: 3
+      # Allow up to 10000ms (10s) P90 for spring boot warm-up
+      successCondition: result <= 10000
+      failureLimit: 1
+      provider:
+        plugin:
+          instana/metrics:
+            host: https://ibmdevsandbox-instanaibm.instana.io
+            apiTokenEnv: INSTANA_API_TOKEN
+            metric: latency
+            aggregation: P90
+            granularity: 60
+            timeWindowMs: 300000
+            clusterName: in-cluster
+            namespace: ford-shop-dev
+            groupByTag: kubernetes.pod.label
+            groupByTagKey: rollouts-pod-template-hash
+            groupByTagEntity: DESTINATION
+            selectGroup: "{{args.pod-template-hash}}"
+            tagFilters:
+              - name: kubernetes.pod.label
+                key: rollouts-pod-template-hash
+                operator: EQUALS
+                entity: DESTINATION
+                value: "{{args.pod-template-hash}}"
